@@ -2,11 +2,11 @@
 #include <cctype>    // For std::isdigit
 #include <algorithm> // For std::find
 
-Lexer::Lexer() {}
+lexer::lexer() {}
 
-Lexer::~Lexer() {}
+lexer::~lexer() {}
 
-void Lexer::tokenize(const std::string &input)
+void lexer::tokenize(const std::string &input)
 {
     tokens.clear(); // Clear previous tokens
 
@@ -109,46 +109,46 @@ void Lexer::tokenize(const std::string &input)
     }
 }
 
-std::vector<token> Lexer::getTokens() const
+std::vector<token> lexer::getTokens() const
 {
     return tokens;
 }
 
-bool Lexer::isIdentifier(char c)
+bool lexer::isIdentifier(char c)
 {
     return std::isalpha(c) || c == '_';
 }
 
-bool Lexer::isDigit(char c)
+bool lexer::isDigit(char c)
 {
     return std::isdigit(c);
 }
 
-bool Lexer::isOperator(char c)
+bool lexer::isOperator(char c)
 {
     // Define the list of valid operator symbols
     const std::string operators = "+-*/<>&.@/:=˜|$!#%^_[],{}\"‘?";
     return operators.find(c) != std::string::npos;
 }
 
-bool Lexer::isWhitespace(char c)
+bool lexer::isWhitespace(char c)
 {
     return c == ' ' || c == '\t'; // Add more whitespace characters as needed
 }
 
-bool Lexer::isPunctuation(char c)
+bool lexer::isPunctuation(char c)
 {
     // Check for valid punctuation characters
     return c == '(' || c == ')' || c == ';' || c == ',';
 }
 
-bool Lexer::isEOL(char c)
+bool lexer::isEOL(char c)
 {
     // Check for End-Of-Line characters
     return c == '\n' || c == '\r';
 }
 
-void Lexer::addToken(tokenType type, const std::string &value, int offset)
+void lexer::addToken(tokenType type, const std::string &value, int offset)
 {
     // Add a token to the token vector
     token t;
@@ -156,4 +156,18 @@ void Lexer::addToken(tokenType type, const std::string &value, int offset)
     t.tokValue = value;
     t.offset = offset;
     tokens.push_back(t);
+}
+
+token* lexer::getNextToken() {
+    // Check if there are tokens available
+    if (!tokens.empty()) {
+        // Get the next token
+        token* nextToken = &tokens.front();
+        // Remove the token from the vector
+        tokens.erase(tokens.begin());
+        return nextToken;
+    } else {
+        // Return nullptr if there are no more tokens
+        return nullptr;
+    }
 }

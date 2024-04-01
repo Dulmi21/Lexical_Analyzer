@@ -10,3 +10,8 @@ token::token()
 token::~token()
 {
 }
+
+std::string token::getValue()
+{
+    return tokValue;
+}
