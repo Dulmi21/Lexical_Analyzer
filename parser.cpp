@@ -1,4 +1,9 @@
 #include "parser.h"
+#include "treeNode.h"
+#include "lexer.h"
+#include "token.h"
+#include <stack>
+#include <string>
 #include <iostream>
 
 parser::parser(lexer *lex)
@@ -612,32 +617,35 @@ void parser::Vl()
         buildTree(",", n + 1, treeNode::COMMA);
 }
 
-void printAST(treeNode *node, int depth)
-{
-    // Function to print the abstract syntax tree(AST) void printAST(treeNode * node, int depth)
-    {
-        // Base case: If the node is null, return
-        if (node == nullptr)
-        {
-            return;
-        }
-
-        // Print the node's string representation with indentation based on depth
-        for (int i = 0; i < depth; ++i)
-        {
-            std::cout << "  ";
-        }
-        std::cout << node->nodeString << std::endl;
-
-        // Recursively print the children nodes with increased depth
-        for (treeNode *child : node->childNode)
-        {
-            printAST(child, depth + 1);
-        }
-    }
-}
-
 std::stack<treeNode *> parser::getTreeStack() const
 {
     return treeStack;
+}
+
+void printAST(treeNode *node, int depth = 0)
+{
+    // Base case: if the node is null, return
+    if (node == nullptr)
+    {
+        return;
+    }
+
+    // Print indentation based on depth
+    for (int i = 0; i < depth; ++i)
+    {
+        std::cout << "  ";
+    }
+
+    // Print node information
+    std::cout << "Node: " << node->nodeString << std::endl;
+
+    // Recursively print children
+    if (node->childNode != nullptr)
+    {
+        printAST(node->childNode, depth + 1);
+    }
+    if (node->siblingNode != nullptr)
+    {
+        printAST(node->siblingNode, depth);
+    }
 }
