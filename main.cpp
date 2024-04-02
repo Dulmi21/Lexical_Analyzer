@@ -1,6 +1,12 @@
 #include <iostream>
 #include "lexer.h"
 #include "parser.h"
+#include "treeNode.h"
+#include "token.h"
+#include "parser.cpp"
+#include <string>
+#include <stack>
+#include <vector>
 
 int main()
 {
@@ -23,14 +29,14 @@ int main()
     }
 
     // Create a parser instance with the lexer
-    parser parse(&lexer);
+    parser parser(&lexer);
 
     // Parse the input tokens
     parser.parse();
 
     // Print the abstract syntax tree (AST)
     std::cout << "Abstract Syntax Tree (AST):" << std::endl;
-        printAST(parse.getTreeStack().top(), 0);
+    parser.printAST(parser.getTreeStack().top(), 0);
 
     return 0;
 }
