@@ -37,17 +37,18 @@ private:
     void Vl();
 
     // Other helper methods
-    void parse();
+    //void parse();
     bool isKeyword(const std::string &value);
     void read(const std::string &tokenStr);
     void buildTree(const std::string &nodeStr, int numChildNodes, int type);
     std::string to_s(treeNode *node);
 
 public:
+    void parse();
     parser(lexer *lex);
-    void printAST();
     virtual ~parser();
     std::stack<treeNode *> getTreeStack() const;
+    void printAST(treeNode *node, int level);
 };
 
 #endif /* PARSER_H */
