@@ -5,13 +5,14 @@
 #include <vector>
 #include "token.h"
 
-class Lexer {
+class lexer {
 public:
-    Lexer();
-    ~Lexer();
+    lexer();
+    ~lexer();
     
     void tokenize(const std::string& input);
     std::vector<token> getTokens() const;
+    token* getNextToken();
 
 private:
     std::vector<token> tokens;

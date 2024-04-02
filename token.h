@@ -25,6 +25,7 @@ public:
     int tokType;
     std::string tokValue;
     int offset;
+    std:: string getValue();
 };
 
 #endif

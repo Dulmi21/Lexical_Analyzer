@@ -1,5 +1,6 @@
 #include <iostream>
 #include "lexer.h"
+#include "parser.h"
 
 int main()
 {
@@ -7,7 +8,7 @@ int main()
     std::string input = "let x = 10;\nfn y => (y + 20);";
 
     // Create a lexer instance
-    Lexer lexer;
+    lexer lexer;
 
     // Tokenize the input string
     lexer.tokenize(input);
@@ -20,6 +21,16 @@ int main()
     {
         std::cout << "Type: " << t.tokType << ", Value: " << t.tokValue << ", Offset: " << t.offset << std::endl;
     }
+
+    // Create a parser instance with the lexer
+    parser parse(&lexer);
+
+    // Parse the input tokens
+    parser.parse();
+
+    // Print the abstract syntax tree (AST)
+    std::cout << "Abstract Syntax Tree (AST):" << std::endl;
+        printAST(parse.getTreeStack().top(), 0);
 
     return 0;
 }
