@@ -8,7 +8,7 @@
 
 class parser
 {
-private:
+public:
     lexer *lex;
     token *nextToken;
     std::stack<treeNode *> treeStack;
@@ -41,8 +41,11 @@ private:
     bool isKeyword(const std::string &value);
     void read(const std::string &tokenStr);
     void buildTree(const std::string &nodeStr, int numChildNodes, int type);
+    void printAST(int depth, treeNode *node);
     std::string to_s(treeNode *node);
 
+
+//void printAST(treeNode *node, int depth)
 public:
     parser(lexer *lex);
     void printAST();

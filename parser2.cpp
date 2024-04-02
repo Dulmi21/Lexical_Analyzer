@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <iostream>
-
+#include <vector>
+#include <iterator>
 #include "treeNode.h"
 
 
@@ -98,19 +99,18 @@ void printAST(treeNode *node, int depth)
         }
 
         // Print the node's string representation with indentation based on depth
-        for (int i = 0; i < depth; ++i)
-        {
-            std::cout << "  ";
-        }
-        std::cout << node->nodeString << std::endl;
+    for (int i = 0; i < depth; ++i) {
+        std::cout << "  ";
+    }
+    std::cout << node->nodeString << std::endl;
 
-        // Recursively print the children nodes with increased depth
-       for (treeNode *child : node->childNode)
-        {
-        printAST(child, depth + 1);
-        }
+    // Recursively print the children nodes with increased depth
+    for (treeNode &child : *(node->childNode)) {
+        printAST(&child, depth + 1);
+    }
     }
 }
+
 
 void parser::parse()
 {
