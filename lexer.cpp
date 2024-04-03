@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include <cctype>    // For std::isdigit
 #include <algorithm> // For std::find
+#include <iostream>
 
 lexer::lexer() {}
 
@@ -158,16 +159,23 @@ void lexer::addToken(tokenType type, const std::string &value, int offset)
     tokens.push_back(t);
 }
 
-token* lexer::getNextToken() {
+token *lexer::getNextToken()
+{
     // Check if there are tokens available
-    if (!tokens.empty()) {
+    if (!tokens.empty())
+    {
         // Get the next token
-        token* nextToken = &tokens.front();
+        token *nextToken = new token(tokens.front());
         // Remove the token from the vector
         tokens.erase(tokens.begin());
         return nextToken;
-    } else {
+    }
+    else
+    {
         // Return nullptr if there are no more tokens
-        return nullptr;
+        token *emptyToken = new token();
+        // Set its properties
+        emptyToken->setToken(8, "EOF", tokens.size()); // Assuming 8 represents EOF type and 0 represents an empty offset
+        return emptyToken;
     }
 }

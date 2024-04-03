@@ -25,7 +25,8 @@ public:
     int tokType;
     std::string tokValue;
     int offset;
-    std:: string getValue();
+    std::string getValue();
+    void setToken(int type, std::string value, int off);
 };
 
 #endif
