@@ -7,7 +7,7 @@
 int main()
 {
     // Input string to tokenize
-    std::string input = "let f x = 3 in Print (f 32)";
+    std::string input = "let Sum(A) = Psum (A,Order A ) where rec Psum(T, N) = N eq 0->0 | Psum(T, N - 1) + T N in Print(Sum(1, 2, 3, 4, 5)) ";
 
     // Create a lexer instance
     lexer lexer;

@@ -2,6 +2,7 @@
 #include <stack>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 parser::parser(lexer *lex)
 {
@@ -38,49 +39,39 @@ void parser::read(const std::string &tokenStr)
 
 void parser::buildTree(const std::string &nodeStr, int numChildNodes, int type)
 {
-    std::cout << "Building tree: " << nodeStr << std::endl;
-    treeNode *newNode = new treeNode();
-    treeNode *tempNode = new treeNode();
-    newNode->nodeString = nodeStr;
-    newNode->type = type;
-
-    if (numChildNodes == 0)
+    std::cout << "Building tree with node string: " << nodeStr << std::endl;
+    treeNode *newNode = new treeNode(nodeStr, type);
+    if (numChildNodes > 0)
     {
-        treeStack.push(newNode);
-    }
-    if (treeStack.empty())
-    {
-        printf("We were asked to pop but the stack is empty\n");
-    }
-    else
-    {
-        while ((numChildNodes - 1) > 0)
+        for (int i = 0; i < numChildNodes; ++i)
         {
-            if (!treeStack.empty())
+            if (treeStack.empty())
             {
-                tempNode = treeStack.top();
-                treeStack.pop();
-                if (treeStack.size() != 0)
-                {
-                    treeStack.top()->siblingNode = tempNode;
-                }
-                else if (treeStack.size() == 0)
-                { // Stack cannot be empty here. We have one more element to pop before we can build/push the requested tree
-                    printf("Parse Error: Empty Stack\n");
-                    exit(0);
-                }
-                numChildNodes--;
+                std::cerr << "Error: Stack is empty" << std::endl;
+                exit(1);
             }
-            else
-            {
-                printf("Stack size is less than numChildNodes. Abort.\n");
-            }
+            treeNode *child = treeStack.top();
+            treeStack.pop();
+
+            // Add the child node to the new node's children vector
+            newNode->children.push_back(child);
         }
-        tempNode = treeStack.top();
-        newNode->childNode = tempNode;
-        treeStack.pop();
+        std::reverse(newNode->children.begin(), newNode->children.end());
+
+        // for (int i = numChildNodes - 1; i >= 0; --i)
+        // {
+        //     newNode->children.push_back(newNode->children[i]);
+        // }
     }
+
+    // Push the new node onto the stack
     treeStack.push(newNode);
+
+    std::cout << "Children of the new node:" << std::endl;
+    for (const auto &child : newNode->children)
+    {
+        std::cout << child->nodeString << std::endl;
+    }
 }
 
 bool parser::isKeyword(const std::string &val)
@@ -667,81 +658,28 @@ std::stack<treeNode *> parser::getTreeStack() const
     return treeStack;
 }
 
-// // Define the function
-// std:: string parser::to_s(treeNode *node)
-// {
-//     std:: string str;
-//     switch (node->type)
-//     {
-//     case treeNode::IDENTIFIER:
-//         return "<ID:" + node->nodeString + ">";
-//     case treeNode::INTEGER:
-//         return "<INT:" + node->nodeString + ">";
-//     case treeNode::STRING:
-//         return "<STR:" + node->nodeString + ">";
-//     default:
-//         return node->nodeString;
-//     }
-//     return NULL;
-// }
-
-// void parser::treePrettyPrint(treeNode *topNode, int numDots)
-// {
-//     int numDots1 = numDots;
-//     while (numDots1 > 0)
-//     {
-//         printf(".");
-//         numDots1--;
-//     }
-//     printf("%s\n", to_s(topNode).c_str());
-
-//     if (topNode->childNode != NULL)
-//     {
-//         treePrettyPrint(topNode->childNode, numDots + 1);
-//     }
-//     if (topNode->siblingNode != NULL)
-//     {
-//         treePrettyPrint(topNode->siblingNode, numDots);
-//     }
-// }
-// void parser::printAST()
-// {
-//     std::stack<treeNode *> treeStack = getTreeStack();
-//     if (!treeStack.empty())
-//         treePrettyPrint(treeStack.top(), 0);
-// }
-
-// void preOrderTraverse(treeNode *node, int i)
-// {
-//     for (int n = 0; n < i; n++)
-//     {
-//         std::cout << ".";
-//     }
-//     std::cout << node->nodeString << std::endl;
-//     treeNode.children.forEach((child)->preOrderTraverse(child, i + 1));
-// }
-
-// void printAst()
-// {
-//     this.preOrderTraverse(, 0);
-// }
-
-void preOrderTraverse(treeNode *node, int depth)
+void parser::preOrderTraverse(treeNode *node, int depth)
 {
     // Print current node's data with appropriate indentation
-    for (int i = 0; i < depth; ++i) {
+
+    for (int i = 0; i < depth; ++i)
+    {
         std::cout << ".";
     }
     std::cout << node->nodeString << std::endl;
 
     // Recursively traverse each child node
-    for (auto child : node->c) {
-        preOrderTraverse(child, depth + 1);
+
+    for (auto childNode : node->children)
+    {
+        // std::cout << "childNode: " << childNode->nodeString << std::endl;
+        preOrderTraverse(childNode, depth + 1);
     }
 }
 
 void parser::printAST()
 {
+    std::stack<treeNode *> treeStack = getTreeStack();
     if (!treeStack.empty())
     {
         preOrderTraverse(treeStack.top(), 0);
