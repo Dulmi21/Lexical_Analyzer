@@ -1,7 +1,4 @@
 #include "parser.h"
-#include "treeNode.h"
-#include "lexer.h"
-#include "token.h"
 #include <stack>
 #include <string>
 #include <iostream>
@@ -13,6 +10,8 @@ parser::parser(lexer *lex)
 {
     this->lex = lex;
     nextToken = NULL;
+    std::vector<token> tokens = lex->getTokens();
+    std::cout << "Parser initialized" << std::endl;
 }
 
 parser::~parser()
@@ -21,6 +20,8 @@ parser::~parser()
 
 void parser::read(const std::string &tokenStr)
 {
+    std::vector<token> tokens = lex->getTokens();
+    std::cout << "Reading token: " << tokenStr << std::endl;
     if (nextToken == NULL)
     {
         nextToken = lex->getNextToken();
@@ -29,7 +30,7 @@ void parser::read(const std::string &tokenStr)
     if (nextToken->getValue() == tokenStr)
     {
         delete nextToken;
-        nextToken = NULL;
+        nextToken = lex->getNextToken();
     }
     else
     {
@@ -40,6 +41,7 @@ void parser::read(const std::string &tokenStr)
 
 void parser::buildTree(const std::string &nodeStr, int numChildNodes, int type)
 {
+    std::cout << "Building tree: " << nodeStr << std::endl;
     treeNode *newNode = new treeNode();
     treeNode *tempNode = new treeNode();
     newNode->nodeString = nodeStr;
@@ -86,6 +88,7 @@ void parser::buildTree(const std::string &nodeStr, int numChildNodes, int type)
 
 bool parser::isKeyword(const std::string &val)
 {
+    std::cout << "Checking if " << val << " is a keyword" << std::endl;
     if (val == "in" || val == "where" || val == "." || val == "aug" || val == "and" || val == "or" || val == "&" || val == "not" || val == "gr" || val == "ge" || val == "ls" || val == "le" || val == "eq" || val == "ne" || val == "+" || val == "-" || val == "*" || val == "/" || val == "**" || val == "@" || val == "within" || val == "rec" || val == "let" || val == "fn")
         return true;
     else
@@ -119,11 +122,16 @@ void printAST(treeNode *node, int depth)
 
 void parser::parse()
 {
-    while (nextToken->tokType == TOK_DELETE)
+    std::vector<token> tokens = lex->getTokens();
+    std::cout << "Parsing started" << std::endl;
+
+    do
     {
         nextToken = lex->getNextToken();
-    }
+        std::cout << "Next token: " << nextToken->getValue() << std::endl;
+    } while (nextToken->tokType == TOK_DELETE);
     E();
+
     if (!treeStack.empty() && treeStack.size() != 1)
     {
         printf("Error: Stack not empty at the end of parsing\n");
@@ -143,6 +151,7 @@ void parser::parse()
 */
 void parser::E()
 {
+    std::cout << "Parsing E" << std::endl;
     if (nextToken->tokValue == "let")
     {
         read("let");
@@ -167,6 +176,7 @@ void parser::E()
     else
     {
         Ew();
+        std::cout << "came out of Ew" << std::endl;
     }
 }
 
@@ -174,6 +184,7 @@ void parser::E()
    -> T;*/
 void parser::Ew()
 {
+    std::cout << "Parsing Ew" << std::endl;
     T();
     if (nextToken->tokValue == "where")
     {
@@ -188,6 +199,7 @@ void parser::Ew()
  */
 void parser::T()
 {
+    std::cout << "Parsing T" << std::endl;
     int n = 0;
     Ta();
     if (nextToken->tokValue == ",")
@@ -207,6 +219,7 @@ void parser::T()
  */
 void parser::Ta()
 {
+    std::cout << "Parsing Ta" << std::endl;
     Tc();
     while (nextToken->tokValue == "aug")
     {
@@ -221,6 +234,7 @@ void parser::Ta()
  */
 void parser::Tc()
 {
+    std::cout << "Parsing Tc" << std::endl;
     B();
     if (nextToken->tokValue == "->")
     {
@@ -237,6 +251,7 @@ void parser::Tc()
   */
 void parser::B()
 {
+    std::cout << "Parsing B" << std::endl;
     Bt();
     while (nextToken->tokValue == "or")
     {
@@ -251,6 +266,7 @@ void parser::B()
   */
 void parser::Bt()
 {
+    std::cout << "Parsing Bt" << std::endl;
     Bs();
     while (nextToken->tokValue == "&")
     {
@@ -265,6 +281,7 @@ void parser::Bt()
   */
 void parser::Bs()
 {
+    std::cout << "Parsing Bs" << std::endl;
     if (nextToken->tokValue == "not")
     {
         read("not");
@@ -287,6 +304,7 @@ void parser::Bs()
   */
 void parser::Bp()
 {
+    std::cout << "Parsing Bp" << std::endl;
     A();
     if (nextToken->tokValue == "gr" || nextToken->tokValue == ">")
     {
@@ -346,6 +364,7 @@ void parser::Bp()
   */
 void parser::A()
 {
+    std::cout << "Parsing A" << std::endl;
     std::string treeStr;
     if (nextToken->tokValue == "+")
     {
@@ -385,6 +404,7 @@ void parser::A()
   */
 void parser::At()
 {
+    std::cout << "Parsing At" << std::endl;
     std::string treeStr;
     Af();
     while (nextToken->tokValue == "*" || nextToken->tokValue == "/")
@@ -409,6 +429,7 @@ void parser::At()
   */
 void parser::Af()
 {
+    std::cout << "Parsing Af" << std::endl;
     Ap();
     if (nextToken->tokValue == "**")
     {
@@ -416,6 +437,7 @@ void parser::Af()
         Af();
         buildTree("**", 2, treeNode::EXPONENTIAL);
     }
+    std::cout << "leaving Af" << std::endl;
 }
 
 /* Ap   -> Ap ’@’ ’<IDENTIFIER>’ R                 => ’@’
@@ -423,7 +445,9 @@ void parser::Af()
   */
 void parser::Ap()
 {
+    std::cout << "Parsing Ap" << std::endl;
     R();
+    std::cout << "just executed R" << std::endl;
     while (nextToken->tokValue == "@")
     {
         read("@");
@@ -432,6 +456,8 @@ void parser::Ap()
         R();
         buildTree("@", 3, treeNode::AT);
     }
+
+    std::cout << "leaving Ap" << std::endl;
 }
 
 /* R    -> R Rn                                    => ’gamma’
@@ -439,12 +465,15 @@ void parser::Ap()
 */
 void parser::R()
 {
+    std::cout << "Parsing R" << std::endl;
     Rn();
     while ((TOK_IDENTIFIER == nextToken->tokType || TOK_INTEGER == nextToken->tokType || TOK_STRING == nextToken->tokType || "(" == nextToken->tokValue || "false" == nextToken->tokValue || "true" == nextToken->tokValue || "nil" == nextToken->tokValue || "dummy" == nextToken->tokValue) && !isKeyword(nextToken->tokValue))
     {
         Rn();
         buildTree("gamma", 2, treeNode::GAMMA);
+        // std::cout << "Next token: " << nextToken->getValue() << std::endl;
     }
+    std::cout << "leaving R" << std::endl;
 }
 
 /* Rn   -> ’<IDENTIFIER>’
@@ -458,11 +487,14 @@ void parser::R()
 */
 void parser::Rn()
 {
+    std::cout << "Parsing Rn" << std::endl;
     if ("(" == nextToken->tokValue)
     {
         read("(");
         E();
+        std::cout << "came out of E in RN " << std::endl;
         read(")");
+        std::cout << "read the last token )" << std::endl;
     }
     else if (TOK_IDENTIFIER == nextToken->tokType || TOK_INTEGER == nextToken->tokType || TOK_STRING == nextToken->tokType)
     {
@@ -490,6 +522,7 @@ void parser::Rn()
         {
             buildTree(nextToken->tokValue, 0, treeNode::IDENTIFIER);
             read(nextToken->tokValue);
+            std::cout << "Line " << __LINE__ << ": " << std::endl;
         }
         else if (TOK_STRING == nextToken->tokType)
         {
@@ -500,6 +533,7 @@ void parser::Rn()
         {
             buildTree(nextToken->tokValue, 0, treeNode::INTEGER);
             read(nextToken->tokValue);
+            std::cout << "Next token: " << nextToken->getValue() << std::endl;
         }
     }
 }
@@ -509,6 +543,8 @@ void parser::Rn()
   */
 void parser::D()
 {
+    std::cout << "Parsing D" << std::endl;
+    std::cout << "Next token: " << nextToken->getValue() << std::endl;
     Da();
 
     if (nextToken->tokValue == "within")
@@ -523,6 +559,7 @@ void parser::D()
   */
 void parser::Da()
 {
+    std::cout << "Parsing Da" << std::endl;
     int n = 0;
     Dr();
     while (nextToken->tokValue == "and")
@@ -540,6 +577,7 @@ void parser::Da()
   */
 void parser::Dr()
 {
+    std::cout << "Parsing Dr" << std::endl;
     if (nextToken->tokValue == "rec")
     {
         read("rec");
@@ -558,6 +596,8 @@ void parser::Dr()
   */
 void parser::Db()
 {
+    std::cout << "Parsing Db" << std::endl;
+    std::cout << "Next token: " << nextToken->getValue() << std::endl;
     if (nextToken->tokValue == "(")
     {
         read("(");
@@ -568,13 +608,18 @@ void parser::Db()
     {
         // Since identifier type is common here, read it here now and consider it for build tree later.
         buildTree(nextToken->tokValue, 0, treeNode::IDENTIFIER);
+        std::cout << "Identifier: " << nextToken->tokValue << std::endl;
         read(nextToken->tokValue);
+        std::cout << "Next token: " << nextToken->getValue() << std::endl;
+        std::cout << "Line " << __LINE__ << ": " << std::endl;
         if (nextToken->tokValue == "," || nextToken->tokValue == "=")
         {
             Vl();
             read("=");
             E();
             buildTree("=", 2, treeNode::BINDING);
+            std::cout << "Next token: " << nextToken->getValue() << std::endl;
+            std::cout << "Line " << __LINE__ << ": " << std::endl;
         }
         else
         {
@@ -650,30 +695,83 @@ std::stack<treeNode *> parser::getTreeStack() const
     return treeStack;
 }
 
-void printAST(treeNode *node, int depth = 0)
+// // Define the function
+// std:: string parser::to_s(treeNode *node)
+// {
+//     std:: string str;
+//     switch (node->type)
+//     {
+//     case treeNode::IDENTIFIER:
+//         return "<ID:" + node->nodeString + ">";
+//     case treeNode::INTEGER:
+//         return "<INT:" + node->nodeString + ">";
+//     case treeNode::STRING:
+//         return "<STR:" + node->nodeString + ">";
+//     default:
+//         return node->nodeString;
+//     }
+//     return NULL;
+// }
+
+// void parser::treePrettyPrint(treeNode *topNode, int numDots)
+// {
+//     int numDots1 = numDots;
+//     while (numDots1 > 0)
+//     {
+//         printf(".");
+//         numDots1--;
+//     }
+//     printf("%s\n", to_s(topNode).c_str());
+
+//     if (topNode->childNode != NULL)
+//     {
+//         treePrettyPrint(topNode->childNode, numDots + 1);
+//     }
+//     if (topNode->siblingNode != NULL)
+//     {
+//         treePrettyPrint(topNode->siblingNode, numDots);
+//     }
+// }
+// void parser::printAST()
+// {
+//     std::stack<treeNode *> treeStack = getTreeStack();
+//     if (!treeStack.empty())
+//         treePrettyPrint(treeStack.top(), 0);
+// }
+
+// void preOrderTraverse(treeNode *node, int i)
+// {
+//     for (int n = 0; n < i; n++)
+//     {
+//         std::cout << ".";
+//     }
+//     std::cout << node->nodeString << std::endl;
+//     treeNode.children.forEach((child)->preOrderTraverse(child, i + 1));
+// }
+
+// void printAst()
+// {
+//     this.preOrderTraverse(, 0);
+// }
+
+void preOrderTraverse(treeNode *node, int depth)
 {
-    // Base case: if the node is null, return
-    if (node == nullptr)
-    {
-        return;
+    // Print current node's data with appropriate indentation
+    for (int i = 0; i < depth; ++i) {
+        std::cout << ".";
     }
+    std::cout << node->nodeString << std::endl;
 
-    // Print indentation based on depth
-    for (int i = 0; i < depth; ++i)
-    {
-        std::cout << "  ";
+    // Recursively traverse each child node
+    for (auto child : node->c) {
+        preOrderTraverse(child, depth + 1);
     }
+}
 
-    // Print node information
-    std::cout << "Node: " << node->nodeString << std::endl;
-
-    // Recursively print children
-    if (node->childNode != nullptr)
+void parser::printAST()
+{
+    if (!treeStack.empty())
     {
-        printAST(node->childNode, depth + 1);
-    }
-    if (node->siblingNode != nullptr)
-    {
-        printAST(node->siblingNode, depth);
+        preOrderTraverse(treeStack.top(), 0);
     }
 }
