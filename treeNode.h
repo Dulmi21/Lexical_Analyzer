@@ -52,7 +52,18 @@ public:
     std::string nodeString;
     treeNode *childNode = NULL;
     treeNode *siblingNode = NULL;
+    std::vector<treeNode *> children;
     int type;
+
+public:
+    treeNode(std::string str, int t)
+    {
+        nodeString = str;
+        type = t;
+    }
+
+    void createchildrenList(treeNode *node);
 };
 
 #endif /* RPAL_COMPILER_TREENODE_H_ */
+
