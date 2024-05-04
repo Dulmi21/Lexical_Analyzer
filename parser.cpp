@@ -694,7 +694,20 @@ void parser::preOrderTraverse(treeNode *node, int depth)
     {
         std::cout << ".";
     }
-    std::cout << node->nodeString << std::endl;
+
+    if (node->type == treeNode::IDENTIFIER)
+    {
+        std::cout << "<ID:" << node->nodeString << ">" << std::endl;
+    }
+    else if (node->type == treeNode::INTEGER)
+    {
+        std::cout << "<INT:" << node->nodeString << ">" << std::endl;
+    }
+
+    else{
+        std::cout << node->nodeString << std::endl;
+    }
+    
 
     // Recursively traverse each child node
 
